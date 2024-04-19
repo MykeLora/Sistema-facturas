@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+
+
+<head>
+
+  <title>Administración de clientes</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="../css/bootstrap.min.css">
+  <script src="../js/jquery.min.js"></script>
+  <script src="../js/popper.min.js"></script>
+  <script src="../js/bootstrap.min.js"></script>
+
+</head>
+
+<body>
+
+
+  <div class="container">
+    <h1 class="m-3 mt-4"><i class="fas fa-users mr-2"></i> Administración de Clientes</h1>
+    
+    <div class="d-flex justify-content-between">
+      <div>
+        <button type="button" id="btnFinalizar" class="btn btn-primary">
+          <i class="fas fa-arrow-left mr-2"></i>
+        </button>        
+      </div>
+      <div>
+        <button type="button" id="btnAgregar" class="btn btn-primary">
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
+    </div>
+    
+    
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th><i class="fas fa-sort-numeric-up"></i> Código</th>
+          <th><i class="fas fa-user"></i> Nombre</th>
+          <th><i class="fas fa-phone"></i> Teléfono</th>
+          <th><i class="fas fa-envelope"></i> Mail</th>
+          <th><i class="fas fa-map-marker-alt"></i> Dirección</th>
+          <th><i class="fas fa-cogs"></i> Acciones</th>
+        </tr>
+      </thead>
+      
+      <tbody id="datos">
+        <!-- Aquí se cargarán los datos dinámicamente -->
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- ModalEditar -->
+  <div class="modal fade" id="ModalEditar" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4><i class="fas fa-edit mr-2"></i> Editar Cliente</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="Codigo" name="Codigo">
+  
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label><i class="fas fa-user mr-2"></i> Nombre:</label>
+              <input type="text" id="Nombre" class="form-control" placeholder="">
+            </div>
+          </div>
+  
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label><i class="fas fa-map-marker-alt mr-2"></i> Dirección:</label>
+              <input type="text" id="Direccion" class="form-control" placeholder="">
+            </div>
+          </div>
+  
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label><i class="fas fa-phone-alt mr-2"></i> Teléfono:</label>
+              <input type="text" id="Telefono" class="form-control" placeholder="">
+            </div>
+          </div>
+  
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label><i class="fas fa-envelope mr-2"></i> Mail:</label>
+              <input type="text" id="Mail" class="form-control" placeholder="">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="btnConfirmarAgregar" class="btn btn-primary"><i class="fas fa-check mr-2"></i> Agregar</button>
+          <button type="button" id="btnModificar" class="btn btn-primary"><i class="fas fa-edit mr-2"></i> Modificar</button>
+          <button type="button" id="btnBorrar" class="btn btn-danger"><i class="fas fa-trash-alt mr-2"></i> Borrar</button>
+          <button type="button" data-dismiss="modal" class="btn btn-secondary"><i class="fas fa-times mr-2"></i> Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ModalConfirmarCancelar -->
+  <div class="modal fade" id="ModalConfirmarBorrar" tabindex="-1" role="dialog">
+    <div class="modal-dialog" style="max-width: 400px" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4><i class="fas fa-exclamation-circle mr-2"></i> Confirmar Borrado</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>¿Realmente desea borrar este cliente?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="btnConfirmarBorrado" class="btn btn-danger"><i class="fas fa-check mr-2"></i> Confirmar</button>
+          <button type="button" data-dismiss="modal" class="btn btn-secondary"><i class="fas fa-times mr-2"></i> Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  <script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+      var cliente;
+
+      MostrarClientes();
+
+      //Boton que vuelve a la página principal
+      $('#btnFinalizar').click(function () {
+        window.location = '../index.php';
+      });
+
+      //Boton que muestra el diálogo de agregar
+      $('#btnAgregar').click(function () {
+        LimpiarFormulario();
+        $('#btnConfirmarAgregar').show();
+        $('#btnModificar').hide();
+        $('#btnBorrar').hide();
+        $("#ModalEditar").modal();
+      });
+
+      $('#btnConfirmarAgregar').click(function () {
+        RecolectarDatosFormulario();
+        if (!EntradaFormularioCorrecto())
+          return;
+        $("#ModalEditar").modal('hide');
+        EnviarInformacion("agregar");
+      });
+
+      $('#btnBorrar').click(function () {
+        $("#ModalEditar").modal('hide');
+        $("#ModalConfirmarBorrar").modal();
+      });
+
+      $('#btnConfirmarBorrado').click(function () {
+        $("#ModalConfirmarBorrar").modal('hide');
+        RecolectarDatosFormulario();
+        $("#ModalEditar").modal('hide');
+        EnviarInformacion("borrar");
+      });
+
+
+      $('#btnModificar').click(function () {
+        RecolectarDatosFormulario();
+        if (!EntradaFormularioCorrecto())
+          return;
+        $("#ModalEditar").modal('hide');
+        EnviarInformacion("modificar");
+      });
+      //******************************************************* 
+
+
+      function MostrarClientes() {
+        $.ajax({
+          type: 'GET',
+          url: 'procesar.php?accion=listar',
+          success: function (clientes) {
+            let filas = '';
+            for (let cliente of clientes) {
+              filas += '<tr><td>' + cliente.codigo + '</td><td>' + cliente.nombre + '</td><td>' + cliente.telefono + '</td><td>' + cliente.mail + '</td><td>' + cliente.direccion + '</td>';
+              filas += '<td><button type="button" class="btn btn-primary botoneditar" data-codigo="' + cliente.codigo + '"><i class="fas fa-edit"></i></button></td></tr>';
+
+            }
+            $('#datos').html(filas);
+            //Boton que muestra el diálogo de modificar y borrar
+            $('.botoneditar').click(function () {
+              $('#Codigo').val($(this).data('codigo'));
+              RecolectarDatosFormulario();
+              
+              RecuperarCliente("recuperar");
+              $('#btnConfirmarAgregar').prop("disabled", true);
+              $('#btnConfirmarAgregar').hide();
+              $('#btnModificar').show();
+              $('#btnBorrar').show();
+              $("#ModalEditar").modal();
+            });
+
+          },
+          error: function () {
+            alert("Hay un error ..");
+          }
+        });
+      }
+
+
+      //Funciones AJAX para enviar y recuperar datos del servidor
+      //******************************************************* 
+      function EnviarInformacion(accion) {
+        $.ajax({
+          type: 'POST',
+          url: 'procesar.php?accion=' + accion,
+          data: cliente,
+          success: function (msg) {
+            MostrarClientes();
+          },
+          error: function () {
+            alert("Hay un error ..");
+          }
+        });
+      }
+
+      function RecuperarCliente(accion) {
+        $.ajax({
+          type: 'POST',
+          url: 'procesar.php?accion=' + accion,
+          data: cliente,
+          success: function (datos) {
+            $('#Nombre').val(datos[0]['nombre']);
+            $('#Telefono').val(datos[0]['telefono']);
+            $('#Mail').val(datos[0]['mail']);
+            $('#Direccion').val(datos[0]['direccion']);
+          },
+          error: function () {
+            alert("Hay un error si..");
+          }
+        });
+      }
+      //******************************************************* 
+
+      function RecolectarDatosFormulario() {
+        cliente = {
+          codigo: $('#Codigo').val(),
+          nombre: $('#Nombre').val(),
+          mail: $('#Mail').val(),
+          direccion: $('#Direccion').val(),
+          telefono: $('#Telefono').val()
+        };
+      }
+
+      function LimpiarFormulario() {
+        $('#Codigo').val('');
+        $('#Nombre').val('');
+        $('#Telefono').val('');
+        $('#Mail').val('');
+        $('#Direccion').val('');
+      }
+
+      function EntradaFormularioCorrecto() {
+        if (cliente['nombre'] == '') {
+          alert("No Puede estar vacío el nombre");
+          return false;
+        }
+        return true;
+      }
+
+    });
+
+
+  </script>
+
+</body>
+
+</html>

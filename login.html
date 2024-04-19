@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Users</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg bg-white rounded">
+                <div class="card-body text-center">
+                    <div style="border-radius: 15px;">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRAm72k17dyz4-BxI1zZ8fhewN5JlISu5krLA&s"
+                            style="width: 185px; border-radius: 15px;" alt="logo">
+                        <h4 class="mt-1 mb-5 pb-1">Cafetería la Rubia</h4>
+                    </div>
+                    <form>
+                        <p>Por favor inicia sesión en tu cuenta</p>
+                        <div class="form-floating mb-4">
+                            <input type="text" id="Usuario" class="form-control" placeholder=" ">
+                            <label for="Usuario">Nombre de usuario</label>
+                        </div>
+                        <div class="form-floating mb-4">
+                            <input type="password" id="Clave" class="form-control" placeholder=" ">
+                            <label for="Clave">Contraseña</label>
+                        </div>
+                        <div class="text-center pt-1 mb-3 pb-1">
+                            <button type="button" class="btn btn-primary btn-lg" id="BotonLogin">Ingresar</button>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center pb-4">
+                            <p class="mb-0 me-2">¿No tienes una cuenta?</p>
+                            <a href="#" id="NuevoUsuario">Crear nueva</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="FormularioNuevoUsuario" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-light">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus"></i> Agregar Nuevo Usuario
+                </h5>
+                <button type="button" class="close text-light" data-dismiss="modal" aria-label="Close" style="position: absolute; top: 10px; right: 10px;">
+                    <span aria-hidden="true">X</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="Codigo">
+                <div class="form-group">
+                    <label for="NombreNuevo">Nombre de usuario:</label>
+                    <input type="text" id="NombreNuevo" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="Clave1">Contraseña:</label>
+                    <input type="password" id="Clave1" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="Clave2">Confirme su contraseña:</label>
+                    <input type="password" id="Clave2" class="form-control" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="BotonAgregarUsuario" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i> Agregar
+                </button>
+                <button type="button" class="btn btn-secondary btn-cancel" data-dismiss="modal">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        $('#NuevoUsuario').click(function () {
+            borrarFormulario();
+            $("#FormularioNuevoUsuario").modal();
+        });
+
+        $('#BotonAgregarUsuario').click(function () {
+            let nuevousuario = retornarNuevoUsuario();
+            if (validarEntradaDatos(nuevousuario))
+                agregarNuevoUsuario(nuevousuario);
+        });
+
+        $('#BotonLogin').click(function () {
+            let usuario = retornarUsuario();
+            loginUsuario(usuario);
+        });
+
+        function borrarFormulario() {
+            $('#NombreNuevo').val("");
+            $('#Clave1').val("");
+            $('#Clave2').val("");
+        }
+
+        function retornarNuevoUsuario() {
+            let nuevousuario = {
+                nombrenuevo: $('#NombreNuevo').val(),
+                clave1: $('#Clave1').val(),
+                clave2: $('#Clave2').val()
+            };
+            return nuevousuario;
+        }
+
+        function retornarUsuario() {
+            let usuario = {
+                usuario: $('#Usuario').val(),
+                clave: $('#Clave').val()
+            };
+            return usuario;
+        }
+
+        function validarEntradaDatos(nuevousuario) {
+            if (nuevousuario.nombrenuevo == '') {
+                alert('No puede ingresar un usuario vacío');
+                return false;
+            }
+            if (nuevousuario.clave1 == '') {
+                alert('No puede ingresar una clave vacía');
+                return false;
+            }
+            if (nuevousuario.clave1 != nuevousuario.clave2) {
+                alert('Las claves ingresadas son distintas');
+                return false;
+            }
+            return true;
+        }
+
+        function agregarNuevoUsuario(nuevousuario) {
+            $.ajax({
+                type: 'POST',
+                url: 'datosusuarios.php?accion=existe',
+                data: nuevousuario,
+                success: function (info) {
+                    if (info.resultado == 'norepetido') {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'datosusuarios.php?accion=agregar',
+                            data: nuevousuario,
+                            success: function () {
+                                alert('se agrego el usuario');
+                                $("#FormularioNuevoUsuario").modal('hide');
+                            },
+                            error: function () {
+                                alert('Error');
+                            }
+                        });
+                    } else
+                        alert('Nombre de usuario existente.');
+                },
+                error: function () {
+                    alert('Error');
+                }
+            });
+        }
+
+        function loginUsuario(usuario) {
+            $.ajax({
+                type: 'POST',
+                url: 'login.php',
+                data: usuario,
+                success: function (respuesta) {
+                    if (respuesta == 'correcta') {
+                        window.location = 'index.php';
+                    } else
+                        alert('nombre de usuario o clave incorrecta');
+                },
+                error: function () {
+                    alert('Error');
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>
